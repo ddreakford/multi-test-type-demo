@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.11.2'
+}
+
+group = 'com.demo.tests'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    allureVersion = '2.25.0'
+    aspectjVersion = '1.9.21'
+}
+
+configurations {
+    agent // AspectJ weaver — required by Allure
+}
+
+dependencies {
+    agent "org.aspectj:aspectjweaver:${aspectjVersion}"
+    testImplementation "org.testng:testng:7.9.0"
+    testImplementation "io.rest-assured:rest-assured:5.4.0"
+    testImplementation "org.seleniumhq.selenium:selenium-java:4.18.1"
+    testImplementation "io.github.bonigarcia:webdrivermanager:5.7.0"
+    testImplementation "io.qameta.allure:allure-testng:${allureVersion}"
+    testImplementation "io.qameta.allure:allure-rest-assured:${allureVersion}"
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.17.0"
+}
+
+test {
+    useTestNG {
+        suites 'src/test/resources/testng.xml'
+    }
+    jvmArgs "-javaagent:${configurations.agent.asPath}"
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+allure {
+    version = allureVersion
+    useTestNG {
+        version = allureVersion
+    }
+}

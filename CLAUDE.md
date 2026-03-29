@@ -7,6 +7,7 @@ Stack: Java 17, Gradle, TestNG, RestAssured, Selenium WebDriver, Allure Report.
 ## Project Structure
 - `docs/` — Setup guide (authoritative source is `.md`; `.docx` is generated for sharing)
 - `scripts/` — Utility scripts (e.g., `convert-to-docx.sh`)
+- `restful-booker-platform/` — Cloned SUT repo, started via docker-compose
 - `rbp-test-demo/` — Gradle project with test source code (created during setup)
 
 ## Conventions
@@ -14,7 +15,9 @@ Stack: Java 17, Gradle, TestNG, RestAssured, Selenium WebDriver, Allure Report.
 - **Java 17** minimum. Use TestNG annotations for test lifecycle.
 - **Allure annotations** (`@Epic`, `@Feature`, `@Story`, `@Severity`) on all test classes/methods.
 - **RestAssured** for API tests; **Selenium WebDriver** for UI tests.
-- **Docker**: The system under test runs via `docker run -d --name rbp -p 3003:3003 mwinteringham/restfulbooker-platform:latest`.
+- **Docker Compose**: The SUT runs as 7 microservices via `cd restful-booker-platform && docker compose up -d`.
+- **Service ports**: Auth=3004, Booking=3000, Room=3001, Branding=3002, Report=3005, Message=3006, UI=80.
+- **Auth model**: Cookie-based tokens (`Set-Cookie: token=<value>`), NOT JSON body. Use `response.getCookie("token")` in RestAssured.
 
 ## Git Workflow
 - Branch: `main`
@@ -27,10 +30,13 @@ Stack: Java 17, Gradle, TestNG, RestAssured, Selenium WebDriver, Allure Report.
 ./scripts/convert-to-docx.sh
 
 # Start system under test
-docker start rbp
+cd restful-booker-platform && docker compose start
+
+# Stop system under test
+cd restful-booker-platform && docker compose stop
 
 # Run tests (from rbp-test-demo/)
-./gradlew clean test
+cd rbp-test-demo && ./gradlew clean test
 
 # Open Allure report
 ./gradlew allureServe
