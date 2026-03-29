@@ -21,6 +21,9 @@ public class UIBase {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=1920,1080");
+        if ("true".equals(System.getenv("CI"))) {
+            options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
+        }
         driver = new ChromeDriver(options);
         driver.get(UI_URL);
     }

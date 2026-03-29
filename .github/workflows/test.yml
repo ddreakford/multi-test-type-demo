@@ -1,0 +1,75 @@
+name: Test Suite
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant Gradle wrapper permissions
+        run: chmod +x rbp-test-demo/gradlew
+
+      - name: Start Restful-Booker Platform
+        run: |
+          cd restful-booker-platform
+          docker compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to initialise..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3004/auth/actuator/health > /dev/null 2>&1; then
+              echo "Services are ready (after ${i}s)"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Verify services are responding
+        run: |
+          curl -sf http://localhost:3001/room/ | head -c 100
+          echo
+          curl -sf -X POST http://localhost:3004/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"admin","password":"password"}' \
+            -o /dev/null -w "Auth: HTTP %{http_code}\n"
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Run test suite
+        run: |
+          cd rbp-test-demo
+          ./gradlew clean test
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          cd rbp-test-demo
+          ./gradlew allureReport
+
+      - name: Upload Allure report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: rbp-test-demo/build/reports/allure-report/allureReport
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: rbp-test-demo/build/reports/tests/test

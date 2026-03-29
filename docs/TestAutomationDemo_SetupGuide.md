@@ -882,23 +882,41 @@ Click the failing test in Allure and walk through each layer:
 
 ## Section 11 — Optional: GitHub Actions CI Pipeline
 
-Adding CI demonstrates end-to-end pipeline awareness, which is a strong differentiator. Create this file at the path shown:
+Adding CI demonstrates end-to-end pipeline awareness, which is a strong differentiator.
 
-### 11.1 .github/workflows/test.yml
+### 11.1 Headless Browser Support
+
+The UI test (`BookingUITest`) runs Chrome in a visible browser window by default. In CI, there is no display, so `UIBase.java` detects the `CI` environment variable (set automatically by GitHub Actions) and switches to headless mode:
+
+```java
+if ("true".equals(System.getenv("CI"))) {
+    options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
+}
+```
+
+This is already implemented in the codebase — no manual changes needed.
+
+### 11.2 .github/workflows/test.yml
+
+Create this file at `.github/workflows/test.yml`:
 
 ```yaml
 name: Test Suite
+
 on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Grant Gradle wrapper permissions
@@ -908,7 +926,31 @@ jobs:
         run: |
           cd restful-booker-platform
           docker compose up -d
-          sleep 20
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to initialise..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3004/auth/actuator/health > /dev/null 2>&1; then
+              echo "Services are ready (after ${i}s)"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Verify services are responding
+        run: |
+          curl -sf http://localhost:3001/room/ | head -c 100
+          echo
+          curl -sf -X POST http://localhost:3004/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"admin","password":"password"}' \
+            -o /dev/null -w "Auth: HTTP %{http_code}\n"
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Run test suite
         run: |
@@ -916,22 +958,51 @@ jobs:
           ./gradlew clean test
 
       - name: Generate Allure report
+        if: always()
         run: |
           cd rbp-test-demo
           ./gradlew allureReport
 
       - name: Upload Allure report as artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: rbp-test-demo/build/reports/allure-report/allureReport
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: rbp-test-demo/build/reports/tests/test
+```
+
+> **Key differences from local setup:**
+> - `submodules: recursive` in checkout to pull the SUT
+> - JDK 21 via `setup-java` (no need for `gradle.properties` override — JDK 21 is the runner default)
+> - Health-check polling loop instead of a fixed `sleep` — more reliable across different runner speeds
+> - Service verification step to fail fast if the SUT didn't start
+> - Chrome installed via `browser-actions/setup-chrome` for Selenium UI tests
+> - `CI=true` is set automatically by GitHub Actions, triggering headless Chrome in `UIBase`
+> - `if: always()` on report/artifact steps so they run even when tests fail — essential for RCA
+
+### 11.3 Create GitHub Repository and Push
+
+```bash
+# Create the remote repo (requires gh CLI: brew install gh)
+gh repo create test-automation-demo --public --source=. --push
+
+# Or if you prefer to create the repo manually on GitHub:
+git remote add origin https://github.com/<your-username>/test-automation-demo.git
+git push -u origin main
 ```
 
 - [ ] GitHub repository created and code pushed
 - [ ] Actions workflow file committed to `.github/workflows/`
 - [ ] Pipeline runs green on first push
 
-> **TIP:** The Allure report is uploaded as a downloadable artifact from the Actions run. In the interview, pull it up from the GitHub Actions tab to show the full CI-to-report pipeline.
+> **TIP:** The Allure report and HTML test results are uploaded as downloadable artifacts from the Actions run. In the interview, pull them up from the GitHub Actions tab to show the full CI-to-report pipeline.
 
 ---
 
