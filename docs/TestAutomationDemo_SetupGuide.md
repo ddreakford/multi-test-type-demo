@@ -16,7 +16,7 @@
 
 ## Section 1 — Prerequisites & Environment
 
-Complete all items in this section before starting Section 3. Each tool is required for the demo to run end to end.
+Complete all items in this section before starting Section 2. Each tool is required for the demo to run end to end.
 
 ### 1.1 Required Tools
 
@@ -82,7 +82,52 @@ done
 
 ---
 
-## Section 2 — Platform Stack Overview
+## Section 2 — Clone the Repository
+
+This repository contains both the test automation project and the system under test (SUT). The SUT — [Restful-Booker Platform](https://github.com/mwinteringham/restful-booker-platform) by Mark Winteringham — is included as a **Git submodule**. You must initialise it when cloning.
+
+### 2.1 Clone with Submodules (recommended)
+
+If you are cloning for the first time, use `--recurse-submodules` to pull everything in one step:
+
+```bash
+git clone --recurse-submodules <repo-url>
+cd test-automation-demo
+```
+
+- [ ] Repository cloned with submodules
+
+### 2.2 Already Cloned Without Submodules?
+
+If you already cloned the repo but the `restful-booker-platform/` directory is empty, initialise the submodule manually:
+
+```bash
+cd test-automation-demo
+git submodule init
+git submodule update
+```
+
+- [ ] Submodule initialised and populated
+
+### 2.3 Verify the Submodule
+
+Confirm the SUT source is present:
+
+```bash
+ls restful-booker-platform/docker-compose.yml
+# Expected: file exists
+
+git submodule status
+# Expected: shows a commit hash followed by "restful-booker-platform"
+```
+
+- [ ] `restful-booker-platform/docker-compose.yml` exists
+
+> **NOTE:** The `restful-booker-platform/` directory is a reference to the upstream repository at https://github.com/mwinteringham/restful-booker-platform. All credit for the SUT's design and implementation belongs to Mark Winteringham and its contributors. See the [Acknowledgements](#acknowledgements) section at the end of this guide.
+
+---
+
+## Section 3 — Platform Stack Overview (Reference)
 
 This section summarises every tool in the demo and why each was selected. Use this as a reference when explaining your choices during the interview.
 
@@ -95,7 +140,7 @@ This section summarises every tool in the demo and why each was selected. Use th
 | Reporting | Allure Report | Visual dashboard with pass/fail trends, RCA drill-down, request/response attachments, and screenshots. |
 | CI (Optional) | GitHub Actions | Runs the full suite on every push. Demonstrates end-to-end pipeline awareness. |
 
-### 2.1 System Under Test — Restful-Booker Platform
+### 3.1 System Under Test — Restful-Booker Platform
 
 Restful-Booker Platform is a hotel booking application built specifically for test automation training. It runs as a set of Docker containers via Docker Compose and exposes seven independent microservices, each with its own REST API and port:
 
@@ -120,7 +165,7 @@ http://localhost:{port}/{service}/swagger-ui/index.html
 
 > **TIP:** The multi-service architecture lets you demonstrate cross-service test coverage, which is a strong talking point: show that an Auth token obtained from the auth service (port 3004) is then used as a cookie credential in booking service tests (port 3000).
 
-### 2.2 Authentication Model
+### 3.2 Authentication Model
 
 The auth service uses **cookie-based tokens**, not JSON response bodies:
 
@@ -131,11 +176,11 @@ The auth service uses **cookie-based tokens**, not JSON response bodies:
 
 ---
 
-## Section 3 — Start the System Under Test
+## Section 4 — Start the System Under Test
 
-### 3.1 Clone and Start via Docker Compose
+### 4.1 Start via Docker Compose
 
-The platform is included in this repository as a Git submodule / cloned repo:
+After cloning the repository with submodules (Section 2), the `restful-booker-platform/` directory contains the SUT's Docker Compose configuration. Start all services:
 
 ```bash
 # From the test-automation-demo project root:
@@ -150,7 +195,7 @@ This pulls all seven service images and starts them. The first run may take a fe
 - [ ] All containers started via `docker compose up -d`
 - [ ] All containers appear healthy in: `docker compose ps`
 
-### 3.2 Verify All Services Are Responding
+### 4.2 Verify All Services Are Responding
 
 Wait 15-20 seconds after startup for all Spring Boot services to initialise, then run each check:
 
@@ -198,7 +243,7 @@ curl -s http://localhost:3001/room/
 
 > **IMPORTANT:** If a service does not respond, check Docker Desktop to confirm all containers are running. Spring Boot services initialise sequentially and may take 15-20 seconds.
 
-### 3.3 Stop / Restart the Platform
+### 4.3 Stop / Restart the Platform
 
 ```bash
 # Stop all services
@@ -215,9 +260,9 @@ docker compose up -d
 
 ---
 
-## Section 4 — Gradle Project Setup
+## Section 5 — Gradle Project Setup
 
-### 4.1 Create Project Directory
+### 5.1 Create Project Directory
 
 ```bash
 # From the test-automation-demo project root:
@@ -227,7 +272,7 @@ cd rbp-test-demo
 
 - [ ] Project directory created
 
-### 4.2 Initialise Gradle Wrapper
+### 5.2 Initialise Gradle Wrapper
 
 Run this to generate the Gradle wrapper files. This makes the project self-contained — no local Gradle install needed:
 
@@ -251,7 +296,7 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip
 
 - [ ] Gradle wrapper generated (`gradlew` file exists in project root)
 
-### 4.3 settings.gradle
+### 5.3 settings.gradle
 
 Ensure the root settings file contains exactly:
 
@@ -261,7 +306,7 @@ rootProject.name = 'rbp-test-demo'
 
 - [ ] settings.gradle in place
 
-### 4.4 build.gradle
+### 5.4 build.gradle
 
 Replace the generated `build.gradle` with the full configuration below. This single file handles all dependencies, the Allure plugin, AspectJ agent wiring, and the TestNG suite runner:
 
@@ -323,9 +368,9 @@ allure {
 
 ---
 
-## Section 5 — Project Structure & Source Files
+## Section 6 — Project Structure & Source Files
 
-### 5.1 Directory Layout
+### 6.1 Directory Layout
 
 Create this directory structure under the project root. Each folder and its purpose is described below:
 
@@ -355,7 +400,7 @@ rbp-test-demo/
 
 - [ ] All directories created
 
-### 5.2 testng.xml (src/test/resources/)
+### 6.2 testng.xml (src/test/resources/)
 
 This file controls test suite execution. The `parallel='classes'` setting runs each test class in its own thread:
 
@@ -385,9 +430,9 @@ This file controls test suite execution. The `parallel='classes'` setting runs e
 
 ---
 
-## Section 6 — Base Classes
+## Section 7 — Base Classes
 
-### 6.1 ApiBase.java (base/)
+### 7.1 ApiBase.java (base/)
 
 Configures RestAssured and attaches the AllureRestAssured filter, which automatically captures every HTTP request and response as an attachment in the report.
 
@@ -426,7 +471,7 @@ public class ApiBase {
 
 - [ ] ApiBase.java created
 
-### 6.2 UIBase.java (base/)
+### 7.2 UIBase.java (base/)
 
 Launches Chrome before each test and captures a screenshot automatically on any failure. The screenshot is attached directly to the Allure report entry for that test:
 
@@ -477,13 +522,13 @@ public class UIBase {
 
 ---
 
-## Section 7 — Model Classes
+## Section 8 — Model Classes
 
 These POJOs are serialised to JSON by Jackson when RestAssured sends request bodies. They match the Booking Service API contract.
 
 > **NOTE:** The Booking Service API requires a `roomid` field and does not use `totalprice` or `additionalneeds` (those fields exist in the original restful-booker single-service app but not in the platform version).
 
-### 7.1 BookingDates.java (models/)
+### 8.1 BookingDates.java (models/)
 
 ```java
 package com.demo.tests.models;
@@ -504,7 +549,7 @@ public class BookingDates {
 
 - [ ] BookingDates.java created
 
-### 7.2 Booking.java (models/)
+### 8.2 Booking.java (models/)
 
 ```java
 package com.demo.tests.models;
@@ -534,9 +579,9 @@ public class Booking {
 
 ---
 
-## Section 8 — Test Classes
+## Section 9 — Test Classes
 
-### 8.1 AuthApiTest.java (api/)
+### 9.1 AuthApiTest.java (api/)
 
 Tests the Auth microservice. Validates that valid credentials return a token cookie (HTTP 200 with `Set-Cookie` header) and that invalid credentials are rejected:
 
@@ -596,7 +641,7 @@ public class AuthApiTest extends ApiBase {
 
 - [ ] AuthApiTest.java created
 
-### 8.2 BookingApiTest.java (api/)
+### 9.2 BookingApiTest.java (api/)
 
 Tests the Booking microservice with a full CRUD lifecycle: create a booking, retrieve it by ID, then delete it using an auth token cookie. Tests are ordered via `priority` and chained via `dependsOnMethods`:
 
@@ -693,7 +738,7 @@ public class BookingApiTest extends ApiBase {
 
 - [ ] BookingApiTest.java created
 
-### 8.3 BookingUITest.java (ui/)
+### 9.3 BookingUITest.java (ui/)
 
 Tests the admin login flow via the browser. Navigates to the admin panel, submits credentials, and asserts the rooms panel is visible. Any failure automatically attaches a screenshot via UIBase:
 
@@ -742,9 +787,9 @@ public class BookingUITest extends UIBase {
 
 ---
 
-## Section 9 — Run Tests & Generate the Report
+## Section 10 — Run Tests & Generate the Report
 
-### 9.1 Run the Full Test Suite
+### 10.1 Run the Full Test Suite
 
 ```bash
 # Full clean run (recommended each time for fresh results)
@@ -756,7 +801,7 @@ public class BookingUITest extends UIBase {
 
 > **NOTE:** If Gradle reports UP-TO-DATE and skips tests, always use `./gradlew clean test` to force a fresh run.
 
-### 9.2 Generate and Open the Allure Report
+### 10.2 Generate and Open the Allure Report
 
 ```bash
 # Serve live (opens browser automatically — best for demos)
@@ -770,7 +815,7 @@ public class BookingUITest extends UIBase {
 - [ ] Allure report opens in browser
 - [ ] All tests visible in the Overview panel
 
-### 9.3 Allure Dashboard Walkthrough
+### 10.3 Allure Dashboard Walkthrough
 
 Use this table when presenting the dashboard. Each row is one talking point:
 
@@ -780,9 +825,9 @@ Use this table when presenting the dashboard. Each row is one talking point:
 | Suites | Each TestNG class and individual test execution time | Useful for spotting slow tests and optimisation opportunities |
 | Behaviors | Tests grouped by @Epic / @Feature / @Story annotations | Shows coverage from a PM or QA Lead perspective |
 | Timeline | Parallel execution visualised across threads | Demonstrates awareness of test efficiency and concurrency |
-| Failed Test Drill-down | Full request/response body, stack trace, failure screenshot | This is the RCA story — see Section 9.4 for the full script |
+| Failed Test Drill-down | Full request/response body, stack trace, failure screenshot | This is the RCA story — see Section 10.4 for the full script |
 
-### 9.4 Root Cause Analysis (RCA) Demo Script
+### 10.4 Root Cause Analysis (RCA) Demo Script
 
 This is a deliberate, controlled failure designed to demonstrate RCA. Walk through these steps during the interview:
 
@@ -835,11 +880,11 @@ Click the failing test in Allure and walk through each layer:
 
 ---
 
-## Section 10 — Optional: GitHub Actions CI Pipeline
+## Section 11 — Optional: GitHub Actions CI Pipeline
 
 Adding CI demonstrates end-to-end pipeline awareness, which is a strong differentiator. Create this file at the path shown:
 
-### 10.1 .github/workflows/test.yml
+### 11.1 .github/workflows/test.yml
 
 ```yaml
 name: Test Suite
@@ -890,9 +935,9 @@ jobs:
 
 ---
 
-## Section 11 — Quick Reference
+## Section 12 — Quick Reference
 
-### 11.1 Key Commands
+### 12.1 Key Commands
 
 ```bash
 # Start system under test
@@ -914,7 +959,7 @@ cd restful-booker-platform && docker compose stop
 cd restful-booker-platform && docker compose down && docker compose up -d
 ```
 
-### 11.2 Default Credentials
+### 12.2 Default Credentials
 
 | | |
 |----|-----|
@@ -926,7 +971,7 @@ cd restful-booker-platform && docker compose down && docker compose up -d
 | **Room API** | http://localhost:3001/room/ |
 | **Swagger (each)** | http://localhost:{port}/{service}/swagger-ui/index.html |
 
-### 11.3 Service Port Map
+### 12.3 Service Port Map
 
 | Service | Port | Direct URL |
 |---------|------|------------|
@@ -938,19 +983,30 @@ cd restful-booker-platform && docker compose down && docker compose up -d
 | Report | 3005 | http://localhost:3005/report/ |
 | Message | 3006 | http://localhost:3006/message/ |
 
-### 11.4 Progress Tracker
+### 12.4 Progress Tracker
 
 Use this summary checklist for a quick status view:
 
 - [ ] Section 1 — Prerequisites installed and verified
-- [ ] Section 3 — Docker containers running, all services responding
-- [ ] Section 4 — Gradle project initialised with build.gradle
-- [ ] Section 5 — All source directories and testng.xml created
-- [ ] Section 6 — ApiBase and UIBase in place
-- [ ] Section 7 — Model classes created
-- [ ] Section 8 — All three test classes created
-- [ ] Section 9 — Tests run green, Allure report opens
-- [ ] Section 9 — RCA demo rehearsed
-- [ ] Section 10 — (Optional) CI pipeline runs clean
+- [ ] Section 2 — Repository cloned with submodules
+- [ ] Section 4 — Docker containers running, all services responding
+- [ ] Section 5 — Gradle project initialised with build.gradle
+- [ ] Section 6 — All source directories and testng.xml created
+- [ ] Section 7 — ApiBase and UIBase in place
+- [ ] Section 8 — Model classes created
+- [ ] Section 9 — All three test classes created
+- [ ] Section 10 — Tests run green, Allure report opens
+- [ ] Section 10 — RCA demo rehearsed
+- [ ] Section 11 — (Optional) CI pipeline runs clean
+
+---
+
+## Acknowledgements
+
+The system under test is the **[Restful-Booker Platform](https://github.com/mwinteringham/restful-booker-platform)** by [Mark Winteringham](https://github.com/mwinteringham). It is an open-source, multi-service hotel booking application built specifically for test automation training. It is included in this repository as a Git submodule — all credit for its design and implementation belongs to Mark Winteringham and its contributors.
+
+- **Repository:** https://github.com/mwinteringham/restful-booker-platform
+- **License:** [GPL-3.0](https://github.com/mwinteringham/restful-booker-platform/blob/master/LICENSE)
+- **Author's site:** https://www.mwtestconsultancy.co.uk
 
 **Good luck with the interview!**
