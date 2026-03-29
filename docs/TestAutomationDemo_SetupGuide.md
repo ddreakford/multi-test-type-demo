@@ -955,13 +955,13 @@ jobs:
       - name: Run test suite
         run: |
           cd rbp-test-demo
-          ./gradlew clean test
+          ./gradlew clean test -Dorg.gradle.java.home=$JAVA_HOME
 
       - name: Generate Allure report
         if: always()
         run: |
           cd rbp-test-demo
-          ./gradlew allureReport
+          ./gradlew allureReport -Dorg.gradle.java.home=$JAVA_HOME
 
       - name: Upload Allure report as artifact
         if: always()
