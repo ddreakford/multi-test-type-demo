@@ -6,41 +6,40 @@
 
 |  |  |
 |----|----|
-| **Purpose** | Step-by-step guide to build and run a test automation demo covering API and UI testing across multiple backend services, with a visual results dashboard and root cause analysis walkthrough. |
+| **Purpose** | Step-by-step guide to set up, run, and understand a test automation demo covering API and UI testing across multiple backend services, with a visual results dashboard and root cause analysis walkthrough. |
 | **Audience** | Individual setup, team onboarding, or job interview / assessment demonstration |
 | **Test Target** | Restful-Booker Platform (Docker Compose) — multi-service hotel booking application |
-| **Stack** | Java 17 • Gradle • TestNG • RestAssured • Selenium WebDriver • Allure Report |
+| **Stack** | Java 17 (source) • JDK 21 (build) • Gradle 8.14 • TestNG • RestAssured • Selenium WebDriver • Allure Report |
 | **Tracking** | Use the checkboxes throughout this document to mark steps complete as you go |
+
+> **How to use this guide:** This is a **clone-and-understand** walkthrough. The repository already contains a fully working test project. You will clone it, start the system under test, run the tests, and then walk through each component to understand how it works. If you want to build the project from scratch as a learning exercise, the code listings in each section serve as a reference — but the focus here is on getting up and running quickly and understanding each piece.
 
 ---
 
 ## Section 1 — Prerequisites & Environment
 
-Complete all items in this section before starting Section 2. Each tool is required for the demo to run end to end.
+Complete all items in this section before proceeding. Each tool is required for the demo to run end to end.
 
 ### 1.1 Required Tools
 
-Install and verify each of the following. Version numbers are minimums — newer versions are fine unless otherwise noted.
+Install and verify each of the following:
 
-- [ ] **Java Development Kit (JDK) 17 or higher**
+- [ ] **JDK 21**
 
   ```bash
   java -version
-  # Expected: openjdk 17.x.x or higher
+  # Expected: openjdk 21.x.x
   ```
 
-  > **NOTE:** Download from https://adoptium.net if not already installed. Set the `JAVA_HOME` environment variable.
+  > **NOTE:** The test source code targets Java 17, but **JDK 21 is required to run Gradle 8.14**. If your system default JDK is newer (e.g., 25), you can install JDK 21 side-by-side and configure it for this project — see Section 5.2.
   >
-  > For fish shell: `set -Ux JAVA_HOME (/usr/libexec/java_home)`
-
-- [ ] **Gradle 8.x** (or use the Gradle Wrapper — preferred)
-
-  ```bash
-  gradle -version
-  # Expected: Gradle 8.x
-  ```
-
-  > **TIP:** The project includes a Gradle Wrapper (`gradlew`). Once set up you do NOT need a global Gradle install — the wrapper downloads the correct version automatically.
+  > | Platform | Install | Typical `JAVA_HOME` Path |
+  > |---|---|---|
+  > | macOS (Homebrew) | `brew install openjdk@21` | `/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home` |
+  > | Linux (apt) | `sudo apt install openjdk-21-jdk` | `/usr/lib/jvm/java-21-openjdk-amd64` |
+  > | Windows | [Adoptium](https://adoptium.net) installer | `C:\Program Files\Eclipse Adoptium\jdk-21` |
+  >
+  > Set `JAVA_HOME` to your JDK 21 path. For fish shell: `set -Ux JAVA_HOME (/usr/libexec/java_home -v 21)`
 
 - [ ] **Docker Desktop** — running and accepting connections
 
@@ -59,7 +58,7 @@ Install and verify each of the following. Version numbers are minimums — newer
 
 ### 1.2 Verify Network Ports Are Available
 
-The Restful-Booker Platform runs as multiple Docker containers, each on its own port. Confirm nothing else is listening on these ports:
+The Restful-Booker Platform runs as multiple Docker containers, each on its own port:
 
 | Port | Service |
 |------|---------|
@@ -88,10 +87,8 @@ This repository contains both the test automation project and the system under t
 
 ### 2.1 Clone with Submodules (recommended)
 
-If you are cloning for the first time, use `--recurse-submodules` to pull everything in one step:
-
 ```bash
-git clone --recurse-submodules <repo-url>
+git clone --recurse-submodules https://github.com/ddreakford/test-automation-demo.git
 cd test-automation-demo
 ```
 
@@ -99,19 +96,14 @@ cd test-automation-demo
 
 ### 2.2 Already Cloned Without Submodules?
 
-If you already cloned the repo but the `restful-booker-platform/` directory is empty, initialise the submodule manually:
+If the `restful-booker-platform/` directory is empty, initialise the submodule manually:
 
 ```bash
-cd test-automation-demo
 git submodule init
 git submodule update
 ```
 
-- [ ] Submodule initialised and populated
-
 ### 2.3 Verify the Submodule
-
-Confirm the SUT source is present:
 
 ```bash
 ls restful-booker-platform/docker-compose.yml
@@ -123,13 +115,13 @@ git submodule status
 
 - [ ] `restful-booker-platform/docker-compose.yml` exists
 
-> **NOTE:** The `restful-booker-platform/` directory is a reference to the upstream repository at https://github.com/mwinteringham/restful-booker-platform. All credit for the SUT's design and implementation belongs to Mark Winteringham and its contributors. See the [Acknowledgements](#acknowledgements) section at the end of this guide.
+> **NOTE:** The `restful-booker-platform/` directory is a reference to the upstream repository at https://github.com/mwinteringham/restful-booker-platform. All credit for the SUT's design and implementation belongs to Mark Winteringham and its contributors. See [Acknowledgements](#acknowledgements).
 
 ---
 
 ## Section 3 — Platform Stack Overview (Reference)
 
-This section summarises every tool in the demo and why each was selected. Use this as a reference when explaining your choices during the interview.
+This section summarises every tool in the demo and why each was selected. Use this as a reference when explaining your choices during an interview.
 
 | **Layer** | **Tool** | **Purpose** |
 |----|----|----|
@@ -154,7 +146,7 @@ Restful-Booker Platform is a hotel booking application built specifically for te
 | **message** | 3006 | Contact / messaging service |
 | **assets** | 80 | Next.js web UI with reverse proxy to backend services |
 
-The web UI is served on port 80 and proxies API requests to the backend services internally. For test automation, we call the service APIs directly on their individual ports.
+The web UI is served on port 80. For test automation, we call the service APIs directly on their individual ports.
 
 Swagger documentation for each service is available at:
 
@@ -163,7 +155,7 @@ http://localhost:{port}/{service}/swagger-ui/index.html
 # e.g. http://localhost:3000/booking/swagger-ui/index.html
 ```
 
-> **TIP:** The multi-service architecture lets you demonstrate cross-service test coverage, which is a strong talking point: show that an Auth token obtained from the auth service (port 3004) is then used as a cookie credential in booking service tests (port 3000).
+> **TIP:** The multi-service architecture lets you demonstrate cross-service test coverage: an Auth token obtained from the auth service (port 3004) is then used as a cookie credential in booking service tests (port 3000).
 
 ### 3.2 Authentication Model
 
@@ -180,12 +172,13 @@ The auth service uses **cookie-based tokens**, not JSON response bodies:
 
 ### 4.1 Start via Docker Compose
 
-After cloning the repository with submodules (Section 2), the `restful-booker-platform/` directory contains the SUT's Docker Compose configuration. Start all services:
+After cloning the repository with submodules (Section 2), start all services:
 
 ```bash
 # From the test-automation-demo project root:
 cd restful-booker-platform
 docker compose up -d
+cd ..
 ```
 
 This pulls all seven service images and starts them. The first run may take a few minutes to download images.
@@ -246,7 +239,7 @@ curl -s http://localhost:3001/room/
 ### 4.3 Stop / Restart the Platform
 
 ```bash
-# Stop all services
+# Stop all services (from restful-booker-platform/)
 cd restful-booker-platform
 docker compose stop
 
@@ -254,61 +247,45 @@ docker compose stop
 docker compose start
 
 # Full reset (removes containers and recreates from images)
-docker compose down
-docker compose up -d
+docker compose down && docker compose up -d
 ```
 
 ---
 
-## Section 5 — Gradle Project Setup
+## Section 5 — Gradle Project Overview
 
-### 5.1 Create Project Directory
+The test project is at `rbp-test-demo/`. It is already fully configured in the repository — you do not need to create any files.
+
+> **Building from scratch?** If you want to recreate this project as a learning exercise, you would run `gradle init --type java-library --dsl groovy` in an empty directory, then add the dependencies and source files described below. That workflow is not covered in this guide.
+
+### 5.1 Verify the Build
 
 ```bash
 # From the test-automation-demo project root:
-mkdir rbp-test-demo
 cd rbp-test-demo
+./gradlew --version
+# Expected: Gradle 8.14, JDK 21
 ```
 
-- [ ] Project directory created
+- [ ] Gradle wrapper runs successfully
 
-### 5.2 Initialise Gradle Wrapper
+### 5.2 JDK Configuration
 
-Run this to generate the Gradle wrapper files. This makes the project self-contained — no local Gradle install needed:
+The Gradle wrapper requires JDK 21. If your system default `JAVA_HOME` points to JDK 21, everything works. If not, you have three options:
 
-```bash
-gradle init --type java-library --dsl groovy --project-name rbp-test-demo --package com.demo.tests --no-comments --no-split-project
-```
+1. **Set `JAVA_HOME`** to your JDK 21 installation before running Gradle
+2. **Edit `gradle.properties`** — uncomment the line matching your OS
+3. **Pass it on the command line:** `./gradlew clean test -Dorg.gradle.java.home=/path/to/jdk-21`
 
-> **IMPORTANT:** Gradle 8.14+ is required for JDK 21+ compatibility. If you have a newer JDK (e.g., JDK 25) as your system default, you must also install JDK 21 and configure it for this project. Create a `gradle.properties` file in the project root:
->
-> ```properties
-> org.gradle.java.home=/path/to/your/jdk-21
-> ```
->
-> On macOS with Homebrew: `brew install openjdk@21` and use `/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home`
+### 5.3 Key Build Files
 
-After init, edit `gradle/wrapper/gradle-wrapper.properties` and ensure the distribution URL points to Gradle 8.14:
-
-```
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip
-```
-
-- [ ] Gradle wrapper generated (`gradlew` file exists in project root)
-
-### 5.3 settings.gradle
-
-Ensure the root settings file contains exactly:
+**`settings.gradle`** — declares the project name:
 
 ```groovy
 rootProject.name = 'rbp-test-demo'
 ```
 
-- [ ] settings.gradle in place
-
-### 5.4 build.gradle
-
-Replace the generated `build.gradle` with the full configuration below. This single file handles all dependencies, the Allure plugin, AspectJ agent wiring, and the TestNG suite runner:
+**`build.gradle`** — manages dependencies, the Allure plugin, AspectJ agent wiring, and the TestNG suite runner:
 
 ```groovy
 plugins {
@@ -362,9 +339,7 @@ allure {
 }
 ```
 
-- [ ] build.gradle in place
-
-> **IMPORTANT:** The `agent` configuration wires AspectJ bytecode weaving into the test JVM. Without this, Allure will run tests but `@Step` annotations and request/response attachments will not appear in the report.
+> **NOTE:** `sourceCompatibility = JavaVersion.VERSION_17` means the compiled bytecode targets Java 17. The Gradle build tool itself requires JDK 21+ to run. The `agent` configuration wires AspectJ bytecode weaving into the test JVM — without it, Allure `@Step` annotations and request/response attachments will not appear in the report.
 
 ---
 
@@ -372,37 +347,33 @@ allure {
 
 ### 6.1 Directory Layout
 
-Create this directory structure under the project root. Each folder and its purpose is described below:
-
 ```
 rbp-test-demo/
 ├── build.gradle
+├── gradle.properties
 ├── settings.gradle
-├── gradlew
-├── gradlew.bat
+├── gradlew / gradlew.bat
 └── src/
     └── test/
         ├── java/com/demo/tests/
         │   ├── api/
-        │   │   ├── AuthApiTest.java
-        │   │   └── BookingApiTest.java
+        │   │   ├── AuthApiTest.java      # Auth service API tests
+        │   │   └── BookingApiTest.java    # Booking CRUD API tests
         │   ├── ui/
-        │   │   └── BookingUITest.java
+        │   │   └── BookingUITest.java     # Browser-based admin login test
         │   ├── base/
-        │   │   ├── ApiBase.java
-        │   │   └── UIBase.java
+        │   │   ├── ApiBase.java           # RestAssured config + service URLs
+        │   │   └── UIBase.java            # Chrome setup + screenshot capture
         │   └── models/
-        │       ├── Booking.java
-        │       └── BookingDates.java
+        │       ├── Booking.java           # Booking request POJO
+        │       └── BookingDates.java      # Date range POJO
         └── resources/
-            └── testng.xml
+            └── testng.xml                 # Test suite definition
 ```
 
-- [ ] All directories created
+### 6.2 testng.xml
 
-### 6.2 testng.xml (src/test/resources/)
-
-This file controls test suite execution. The `parallel='classes'` setting runs each test class in its own thread:
+Controls test suite execution. `parallel='classes'` runs each test class in its own thread:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -426,17 +397,15 @@ This file controls test suite execution. The `parallel='classes'` setting runs e
 </suite>
 ```
 
-- [ ] testng.xml created
-
 ---
 
 ## Section 7 — Base Classes
 
-### 7.1 ApiBase.java (base/)
+### 7.1 ApiBase.java
 
 Configures RestAssured and attaches the AllureRestAssured filter, which automatically captures every HTTP request and response as an attachment in the report.
 
-Because each microservice runs on its own port, `ApiBase` does **not** set a global `baseURI`. Instead, test classes specify the full URL for each service they target.
+Because each microservice runs on its own port, `ApiBase` defines per-service URL constants rather than a single `baseURI`:
 
 ```java
 package com.demo.tests.base;
@@ -469,11 +438,9 @@ public class ApiBase {
 }
 ```
 
-- [ ] ApiBase.java created
+### 7.2 UIBase.java
 
-### 7.2 UIBase.java (base/)
-
-Launches Chrome before each test and captures a screenshot automatically on any failure. The screenshot is attached directly to the Allure report entry for that test:
+Launches Chrome before each test and captures a screenshot automatically on any failure. In CI environments (where `CI=true`), Chrome runs in headless mode:
 
 ```java
 package com.demo.tests.base;
@@ -499,6 +466,9 @@ public class UIBase {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--window-size=1920,1080");
+        if ("true".equals(System.getenv("CI"))) {
+            options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
+        }
         driver = new ChromeDriver(options);
         driver.get(UI_URL);
     }
@@ -518,8 +488,6 @@ public class UIBase {
 }
 ```
 
-- [ ] UIBase.java created
-
 ---
 
 ## Section 8 — Model Classes
@@ -528,7 +496,7 @@ These POJOs are serialised to JSON by Jackson when RestAssured sends request bod
 
 > **NOTE:** The Booking Service API requires a `roomid` field and does not use `totalprice` or `additionalneeds` (those fields exist in the original restful-booker single-service app but not in the platform version).
 
-### 8.1 BookingDates.java (models/)
+### 8.1 BookingDates.java
 
 ```java
 package com.demo.tests.models;
@@ -547,9 +515,7 @@ public class BookingDates {
 }
 ```
 
-- [ ] BookingDates.java created
-
-### 8.2 Booking.java (models/)
+### 8.2 Booking.java
 
 ```java
 package com.demo.tests.models;
@@ -575,13 +541,11 @@ public class Booking {
 }
 ```
 
-- [ ] Booking.java created
-
 ---
 
 ## Section 9 — Test Classes
 
-### 9.1 AuthApiTest.java (api/)
+### 9.1 AuthApiTest.java
 
 Tests the Auth microservice. Validates that valid credentials return a token cookie (HTTP 200 with `Set-Cookie` header) and that invalid credentials are rejected:
 
@@ -639,11 +603,9 @@ public class AuthApiTest extends ApiBase {
 }
 ```
 
-- [ ] AuthApiTest.java created
+### 9.2 BookingApiTest.java
 
-### 9.2 BookingApiTest.java (api/)
-
-Tests the Booking microservice with a full CRUD lifecycle: create a booking, retrieve it by ID, then delete it using an auth token cookie. Tests are ordered via `priority` and chained via `dependsOnMethods`:
+Tests the Booking microservice with a full CRUD lifecycle: create a booking, retrieve it by ID, then delete it using an auth token cookie. Tests are ordered via `priority` and chained via `dependsOnMethods`. Booking dates are dynamically set 6 months in the future to avoid conflicts with existing data:
 
 ```java
 package com.demo.tests.api;
@@ -736,9 +698,7 @@ public class BookingApiTest extends ApiBase {
 }
 ```
 
-- [ ] BookingApiTest.java created
-
-### 9.3 BookingUITest.java (ui/)
+### 9.3 BookingUITest.java
 
 Tests the admin login flow via the browser. Navigates to the admin panel, submits credentials, and asserts the rooms panel is visible. Any failure automatically attaches a screenshot via UIBase:
 
@@ -783,8 +743,6 @@ public class BookingUITest extends UIBase {
 }
 ```
 
-- [ ] BookingUITest.java created
-
 ---
 
 ## Section 10 — Run Tests & Generate the Report
@@ -792,14 +750,14 @@ public class BookingUITest extends UIBase {
 ### 10.1 Run the Full Test Suite
 
 ```bash
-# Full clean run (recommended each time for fresh results)
+# From rbp-test-demo/ (make sure the SUT is running — Section 4)
 ./gradlew clean test
 # Expected output: test count, pass/skip/fail summary in terminal
 ```
 
-- [ ] `./gradlew clean test` completes without build errors
+- [ ] `./gradlew clean test` completes with all 6 tests passing
 
-> **NOTE:** If Gradle reports UP-TO-DATE and skips tests, always use `./gradlew clean test` to force a fresh run.
+> **NOTE:** If Gradle reports UP-TO-DATE and skips tests, use `./gradlew clean test` to force a fresh run. If the build fails due to JDK version, see Section 5.2.
 
 ### 10.2 Generate and Open the Allure Report
 
@@ -825,15 +783,15 @@ Use this table when presenting the dashboard. Each row is one talking point:
 | Suites | Each TestNG class and individual test execution time | Useful for spotting slow tests and optimisation opportunities |
 | Behaviors | Tests grouped by @Epic / @Feature / @Story annotations | Shows coverage from a PM or QA Lead perspective |
 | Timeline | Parallel execution visualised across threads | Demonstrates awareness of test efficiency and concurrency |
-| Failed Test Drill-down | Full request/response body, stack trace, failure screenshot | This is the RCA story — see Section 10.4 for the full script |
+| Failed Test Drill-down | Full request/response body, stack trace, failure screenshot | This is the RCA story — see Section 10.4 |
 
 ### 10.4 Root Cause Analysis (RCA) Demo Script
 
-This is a deliberate, controlled failure designed to demonstrate RCA. Walk through these steps during the interview:
+This is an **optional, deliberate failure** designed to practice demonstrating RCA skills (e.g., during an interview). Skip this on first run — come back to it once you're comfortable with the green suite.
 
 **Step 1 — Introduce a Known Failure**
 
-In `BookingApiTest.java`, change the status code assertion in `createBooking()`:
+In `BookingApiTest.java`, temporarily change the status code assertion in `createBooking()`:
 
 ```java
 // Before (correct)
@@ -843,17 +801,13 @@ In `BookingApiTest.java`, change the status code assertion in `createBooking()`:
 .statusCode(200)
 ```
 
-- [ ] Intentional failure introduced
-
 **Step 2 — Re-run and Open the Report**
 
 ```bash
 ./gradlew clean test allureServe
 ```
 
-- [ ] Failure appears in report
-
-**Step 3 — RCA Talking Points in the Report**
+**Step 3 — Walk Through the RCA in the Report**
 
 Click the failing test in Allure and walk through each layer:
 
@@ -862,9 +816,7 @@ Click the failing test in Allure and walk through each layer:
 3. **Response layer:** HTTP 201 received from service — confirm service behaved correctly
 4. **Conclusion:** "This is a test defect, not a service defect. The service returned the correct HTTP 201 Created. The assertion was misconfigured to expect 200. Root cause is in the test, not the system under test."
 
-> **TIP:** This distinction — test defect vs system defect — is exactly what interviewers want to hear. It shows you understand the difference between a failing test and a broken system.
-
-- [ ] RCA walk-through rehearsed
+> **TIP:** This distinction — test defect vs system defect — is exactly what interviewers want to hear.
 
 **Step 4 — Restore the Correct Assertion**
 
@@ -876,133 +828,39 @@ Click the failing test in Allure and walk through each layer:
 ./gradlew clean test allureServe
 ```
 
-- [ ] All tests green again
+- [ ] RCA walk-through rehearsed
 
 ---
 
-## Section 11 — Optional: GitHub Actions CI Pipeline
+## Section 11 — GitHub Actions CI Pipeline
 
-Adding CI demonstrates end-to-end pipeline awareness, which is a strong differentiator.
+The repository includes a CI pipeline that runs the full test suite on every push. It is already configured — no setup required.
 
-### 11.1 Headless Browser Support
+### 11.1 How It Works
 
-The UI test (`BookingUITest`) runs Chrome in a visible browser window by default. In CI, there is no display, so `UIBase.java` detects the `CI` environment variable (set automatically by GitHub Actions) and switches to headless mode:
+The workflow file at `.github/workflows/test.yml`:
 
-```java
-if ("true".equals(System.getenv("CI"))) {
-    options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
-}
-```
+1. Checks out the repo with `submodules: recursive`
+2. Sets up JDK 21 via `actions/setup-java`
+3. Starts the SUT via `docker compose up -d`
+4. Polls the health endpoint until services are ready
+5. Installs Chrome and runs the test suite (headless via `CI=true`)
+6. Generates the Allure report and uploads it as a downloadable artifact
 
-This is already implemented in the codebase — no manual changes needed.
+**Key CI-specific details:**
+- `CI=true` (set automatically by GitHub Actions) triggers headless Chrome in `UIBase`
+- `-Dorg.gradle.java.home=$JAVA_HOME` overrides `gradle.properties` so the runner's JDK is used
+- `if: always()` on report/artifact steps ensures they run even when tests fail — essential for RCA
 
-### 11.2 .github/workflows/test.yml
+### 11.2 Viewing CI Results
 
-Create this file at `.github/workflows/test.yml`:
+After pushing, go to the **Actions** tab on the GitHub repository to see the pipeline run. The Allure report and HTML test results are uploaded as downloadable artifacts.
 
-```yaml
-name: Test Suite
+> **TIP:** In an interview, pull up the CI run from the GitHub Actions tab to show the full CI-to-report pipeline.
 
-on: [push, pull_request]
+### 11.3 Forking This Repository
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Grant Gradle wrapper permissions
-        run: chmod +x rbp-test-demo/gradlew
-
-      - name: Start Restful-Booker Platform
-        run: |
-          cd restful-booker-platform
-          docker compose up -d
-
-      - name: Wait for services to be ready
-        run: |
-          echo "Waiting for services to initialise..."
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3004/auth/actuator/health > /dev/null 2>&1; then
-              echo "Services are ready (after ${i}s)"
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Verify services are responding
-        run: |
-          curl -sf http://localhost:3001/room/ | head -c 100
-          echo
-          curl -sf -X POST http://localhost:3004/auth/login \
-            -H "Content-Type: application/json" \
-            -d '{"username":"admin","password":"password"}' \
-            -o /dev/null -w "Auth: HTTP %{http_code}\n"
-
-      - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-
-      - name: Run test suite
-        run: |
-          cd rbp-test-demo
-          ./gradlew clean test -Dorg.gradle.java.home=$JAVA_HOME
-
-      - name: Generate Allure report
-        if: always()
-        run: |
-          cd rbp-test-demo
-          ./gradlew allureReport -Dorg.gradle.java.home=$JAVA_HOME
-
-      - name: Upload Allure report as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: rbp-test-demo/build/reports/allure-report/allureReport
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: rbp-test-demo/build/reports/tests/test
-```
-
-> **Key differences from local setup:**
-> - `submodules: recursive` in checkout to pull the SUT
-> - JDK 21 via `setup-java` (no need for `gradle.properties` override — JDK 21 is the runner default)
-> - Health-check polling loop instead of a fixed `sleep` — more reliable across different runner speeds
-> - Service verification step to fail fast if the SUT didn't start
-> - Chrome installed via `browser-actions/setup-chrome` for Selenium UI tests
-> - `CI=true` is set automatically by GitHub Actions, triggering headless Chrome in `UIBase`
-> - `if: always()` on report/artifact steps so they run even when tests fail — essential for RCA
-
-### 11.3 Create GitHub Repository and Push
-
-```bash
-# Create the remote repo (requires gh CLI: brew install gh)
-gh repo create test-automation-demo --public --source=. --push
-
-# Or if you prefer to create the repo manually on GitHub:
-git remote add origin https://github.com/<your-username>/test-automation-demo.git
-git push -u origin main
-```
-
-- [ ] GitHub repository created and code pushed
-- [ ] Actions workflow file committed to `.github/workflows/`
-- [ ] Pipeline runs green on first push
-
-> **TIP:** The Allure report and HTML test results are uploaded as downloadable artifacts from the Actions run. In the interview, pull them up from the GitHub Actions tab to show the full CI-to-report pipeline.
+If you fork this repo, GitHub Actions will be enabled automatically. The pipeline will run on your first push. No changes needed — the workflow uses relative paths and `JAVA_HOME` from the runner.
 
 ---
 
@@ -1011,8 +869,8 @@ git push -u origin main
 ### 12.1 Key Commands
 
 ```bash
-# Start system under test
-cd restful-booker-platform && docker compose start
+# Start system under test (from project root)
+cd restful-booker-platform && docker compose start && cd ..
 
 # Run tests (from rbp-test-demo/)
 cd rbp-test-demo && ./gradlew clean test
@@ -1024,10 +882,10 @@ cd rbp-test-demo && ./gradlew clean test
 ./gradlew allureReport
 
 # Stop system under test
-cd restful-booker-platform && docker compose stop
+cd restful-booker-platform && docker compose stop && cd ..
 
 # Full reset of SUT
-cd restful-booker-platform && docker compose down && docker compose up -d
+cd restful-booker-platform && docker compose down && docker compose up -d && cd ..
 ```
 
 ### 12.2 Default Credentials
@@ -1056,19 +914,13 @@ cd restful-booker-platform && docker compose down && docker compose up -d
 
 ### 12.4 Progress Tracker
 
-Use this summary checklist for a quick status view:
-
 - [ ] Section 1 — Prerequisites installed and verified
 - [ ] Section 2 — Repository cloned with submodules
 - [ ] Section 4 — Docker containers running, all services responding
-- [ ] Section 5 — Gradle project initialised with build.gradle
-- [ ] Section 6 — All source directories and testng.xml created
-- [ ] Section 7 — ApiBase and UIBase in place
-- [ ] Section 8 — Model classes created
-- [ ] Section 9 — All three test classes created
+- [ ] Section 5 — Gradle build verified
 - [ ] Section 10 — Tests run green, Allure report opens
-- [ ] Section 10 — RCA demo rehearsed
-- [ ] Section 11 — (Optional) CI pipeline runs clean
+- [ ] Section 10 — (Optional) RCA demo rehearsed
+- [ ] Section 11 — CI pipeline runs green
 
 ---
 
