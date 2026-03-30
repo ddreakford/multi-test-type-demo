@@ -166,6 +166,48 @@ Open Google Chrome and navigate to **http://localhost**. You should see the Shad
 
 ---
 
+## Test Scenario 4: Root Cause Analysis (RCA) Demo — Intentional Failures
+
+| | |
+|---|---|
+| **ID** | TC-RCA-001 / TC-RCA-002 |
+| **Title** | Intentional Test Failures for Allure RCA Walkthrough |
+| **Priority** | N/A — these are demonstration scenarios, not real defects |
+| **Preconditions** | SUT is running. Automated test suite has been executed including the RCA demo (`./gradlew rcaDemo`). Allure report is open. |
+
+### Purpose
+
+These scenarios contain **deliberate test defects** — the system under test behaves correctly, but the test assertions are intentionally wrong. The goal is to practice root cause analysis using the Allure dashboard: distinguishing between a **test defect** (wrong assertion) and a **system defect** (broken functionality).
+
+This is a key skill for QA interviews and day-to-day triage work.
+
+### RCA-001: API — Booking Status Code Mismatch
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1 | Run the RCA demo suite: `cd rbp-test-demo && ./gradlew rcaDemo` | Build succeeds. Two tests run and both **FAIL** (this is expected). | |
+| 2 | Open the Allure report: `./gradlew allureServe` | The Allure dashboard opens. The Overview shows 2 failed tests under the **"RCA Demo"** epic. | |
+| 3 | Click the failing test **"RCA-001: Booking creation returns wrong status code"**. | The test detail page opens showing the assertion error. | |
+| 4 | In the **Assertion** section, read the error message. | The message reads: *"Expected status code 200 but was 201"*. | |
+| 5 | Expand the **Request** attachment. | Shows the full HTTP POST body sent to `/booking/` — a valid booking JSON with firstname, lastname, dates. The request is correct. | |
+| 6 | Expand the **Response** attachment. | Shows HTTP 201 Created with a `bookingid` in the response body. The service behaved correctly. | |
+| 7 | **Conclude the RCA.** | **Root cause:** This is a **test defect**, not a system defect. The API correctly returns HTTP 201 Created for a new booking. The test assertion was misconfigured to expect HTTP 200 OK. The fix would be to change `.statusCode(200)` to `.statusCode(201)` in the test code. | |
+
+### RCA-002: UI — Homepage Heading Text Mismatch
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 1 | In the same Allure report, click the failing test **"RCA-002: Homepage heading asserts wrong hotel name"**. | The test detail page opens showing the assertion error. | |
+| 2 | Read the assertion error message. | The message reads: *"Expected heading to contain 'Welcome to Grand Hotel' but found: 'Welcome to Shady Meadows B&B'"*. | |
+| 3 | Click the **"Failure Screenshot"** attachment. | A screenshot of the homepage is displayed, clearly showing the heading **"Welcome to Shady Meadows B&B"**. The UI is correct. | |
+| 4 | **Conclude the RCA.** | **Root cause:** This is a **test defect**. The tester hardcoded the wrong expected hotel name ("Grand Hotel" instead of "Shady Meadows B&B"). The UI displays the correct name. The fix would be to update the expected text in the test assertion. | |
+
+### Key Takeaway
+
+> In both cases, the system under test is behaving correctly. The failures are caused by **misconfigured test assertions**. This distinction — test defect vs system defect — is critical for effective test triage and is a strong talking point in interviews.
+
+---
+
 ## Test Execution Summary
 
 | Test Case ID | Title | Status | Tester | Date |
@@ -173,6 +215,8 @@ Open Google Chrome and navigate to **http://localhost**. You should see the Shad
 | TC-UI-001 | Validate Homepage UI | | | |
 | TC-BOOK-001 | Book a Suite Room | | | |
 | TC-MSG-001 | Send a Contact Message | | | |
+| TC-RCA-001 | RCA: Booking Status Code Mismatch | FAIL (intentional) | | |
+| TC-RCA-002 | RCA: Homepage Heading Mismatch | FAIL (intentional) | | |
 
 ### Notes
 - **Screenshots** in this document were captured using automated Selenium scripts included in the repository at `rbp-test-demo/src/test/java/com/demo/tests/screenshots/ManualTestScreenshots.java`. To regenerate screenshots: `cd rbp-test-demo && ./gradlew captureScreenshots`.

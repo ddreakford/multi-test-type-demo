@@ -52,6 +52,19 @@ tasks.register('captureScreenshots', Test) {
     }
 }
 
+// RCA Demo: intentional failures for Allure root cause analysis dashboard.
+// ignoreFailures = true so the build succeeds — failures appear only in Allure.
+tasks.register('rcaDemo', Test) {
+    useTestNG {
+        suites 'src/test/resources/testng-rca.xml'
+    }
+    jvmArgs "-javaagent:${configurations.agent.asPath}"
+    ignoreFailures = true
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
 allure {
     version = allureVersion
     useTestNG {

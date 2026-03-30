@@ -54,6 +54,12 @@ jobs:
           cd rbp-test-demo
           ./gradlew clean test -Dorg.gradle.java.home=$JAVA_HOME
 
+      - name: Run RCA demo (intentional failures for Allure dashboard)
+        if: always()
+        run: |
+          cd rbp-test-demo
+          ./gradlew rcaDemo -Dorg.gradle.java.home=$JAVA_HOME
+
       - name: Generate Allure report
         if: always()
         run: |

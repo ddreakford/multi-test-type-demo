@@ -787,48 +787,43 @@ Use this table when presenting the dashboard. Each row is one talking point:
 | Timeline | Parallel execution visualised across threads | Demonstrates awareness of test efficiency and concurrency |
 | Failed Test Drill-down | Full request/response body, stack trace, failure screenshot | This is the RCA story — see Section 10.4 |
 
-### 10.4 Root Cause Analysis (RCA) Demo Script
+### 10.4 Root Cause Analysis (RCA) Demo
 
-This is an **optional, deliberate failure** designed to practice demonstrating RCA skills (e.g., during an interview). Skip this on first run — come back to it once you're comfortable with the green suite.
+The repository includes a dedicated **RCA demo suite** with two tests that are **intentionally designed to fail**. This lets you practice root cause analysis using the Allure dashboard without modifying any test code.
 
-**Step 1 — Introduce a Known Failure**
-
-In `BookingApiTest.java`, temporarily change the status code assertion in `createBooking()`:
-
-```java
-// Before (correct)
-.statusCode(201)
-
-// After (intentionally wrong — simulates a misconfigured assertion)
-.statusCode(200)
-```
-
-**Step 2 — Re-run and Open the Report**
+**Step 1 — Run the RCA Demo**
 
 ```bash
-./gradlew clean test allureServe
+# From rbp-test-demo/ — runs the intentional failures (build still succeeds)
+./gradlew rcaDemo
 ```
 
-**Step 3 — Walk Through the RCA in the Report**
+Two tests run and both FAIL. The Gradle build still shows `BUILD SUCCESSFUL` because `ignoreFailures` is set.
 
-Click the failing test in Allure and walk through each layer:
-
-1. **Assertion layer:** "Expected status code 200 but was 201" — the exact line that failed
-2. **Request layer:** full HTTP POST body sent to /booking/ — confirm request was correct
-3. **Response layer:** HTTP 201 received from service — confirm service behaved correctly
-4. **Conclusion:** "This is a test defect, not a service defect. The service returned the correct HTTP 201 Created. The assertion was misconfigured to expect 200. Root cause is in the test, not the system under test."
-
-> **TIP:** This distinction — test defect vs system defect — is exactly what interviewers want to hear.
-
-**Step 4 — Restore the Correct Assertion**
-
-```java
-.statusCode(201) // restore
-```
+**Step 2 — Open the Allure Report**
 
 ```bash
-./gradlew clean test allureServe
+./gradlew allureServe
 ```
+
+The Allure dashboard shows the **"RCA Demo"** epic with 2 failed tests alongside your passing tests.
+
+**Step 3 — Walk Through Each Failure**
+
+**RCA-001 (API):** Click *"Booking creation returns wrong status code"*:
+1. **Assertion:** "Expected status code 200 but was 201"
+2. **Request:** valid booking JSON — request is correct
+3. **Response:** HTTP 201 Created — service behaved correctly
+4. **Conclusion:** Test defect. The assertion expects 200, but the API correctly returns 201 Created.
+
+**RCA-002 (UI):** Click *"Homepage heading asserts wrong hotel name"*:
+1. **Assertion:** expected "Welcome to Grand Hotel" but found "Welcome to Shady Meadows B&B"
+2. **Screenshot:** shows the actual homepage with the correct heading
+3. **Conclusion:** Test defect. The expected text is hardcoded wrong; the UI is correct.
+
+> **TIP:** In both cases, the system under test behaves correctly. The failures are caused by misconfigured assertions. This distinction — **test defect vs system defect** — is exactly what interviewers want to hear.
+
+For the full step-by-step RCA walkthrough (suitable for manual testers), see [ManualTestTutorial.md](ManualTestTutorial.md) — Test Scenario 4.
 
 - [ ] RCA walk-through rehearsed
 
@@ -885,6 +880,9 @@ cd rbp-test-demo && ./gradlew clean test
 
 # Stop system under test
 cd restful-booker-platform && docker compose stop && cd ..
+
+# Run RCA demo (intentional failures for Allure dashboard)
+cd rbp-test-demo && ./gradlew rcaDemo
 
 # Full reset of SUT (Apple Silicon: include DOCKER_DEFAULT_PLATFORM)
 cd restful-booker-platform && docker compose down && DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d && cd ..

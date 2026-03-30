@@ -11,7 +11,7 @@ A multi-service test automation demo targeting the **Restful-Booker Platform** �
 | API Testing | RestAssured + TestNG |
 | UI Testing | Selenium WebDriver + TestNG |
 | Reporting | Allure Report |
-| CI (Optional) | GitHub Actions |
+| CI | GitHub Actions |
 
 ## Prerequisites
 
@@ -42,6 +42,66 @@ cd rbp-test-demo
 
 > **NOTE:** If your system JDK is newer than 21 (e.g., JDK 25), Gradle may fail. See [JDK Setup](#jdk-setup) below.
 
+## What's in the Test Suite
+
+This project includes three categories of tests, plus an RCA demonstration:
+
+### Automated Tests (23 tests — run locally and in CI)
+
+| Suite | Tests | What It Covers |
+|---|---|---|
+| **API Tests** (Auth, Booking CRUD) | 5 | Cookie-based auth, create/read/delete bookings via REST |
+| **UI Test** (Admin Login) | 1 | Browser-based admin panel login with Selenium |
+| **Regression Suite** (Homepage, Booking Flow, Contact Form) | 17 | Full customer-facing UI validation — maps 1:1 to the manual test scenarios |
+
+```bash
+# Run all 23 automated tests
+./gradlew clean test
+
+# View Allure report with results
+./gradlew allureServe
+```
+
+### RCA Demo (2 intentional failures — for Allure dashboard practice)
+
+Two tests that are **designed to fail** to demonstrate root cause analysis in Allure:
+
+| Test | Type | Intentional Defect |
+|---|---|---|
+| RCA-001 | API | Asserts HTTP 200 but service correctly returns 201 Created |
+| RCA-002 | UI | Asserts "Welcome to Grand Hotel" but page shows "Welcome to Shady Meadows B&B" |
+
+Both are **test defects, not system defects** — the SUT behaves correctly. The RCA demo runs separately and does not affect the main suite pass/fail status.
+
+```bash
+# Run RCA demo (build succeeds even though tests fail)
+./gradlew rcaDemo
+
+# View combined report (passing tests + intentional failures)
+./gradlew allureServe
+```
+
+### Manual Tests (3 scenarios — step-by-step tutorial with screenshots)
+
+A [Manual Test Tutorial](docs/ManualTestTutorial.md) provides step-by-step instructions for manual testers, with reference screenshots captured by Selenium:
+
+| Scenario | Steps | What It Covers |
+|---|---|---|
+| TC-UI-001 | 9 | Homepage UI validation (hero, nav, rooms, location, contact, footer) |
+| TC-BOOK-001 | 14 | End-to-end room booking flow |
+| TC-MSG-001 | 4 | Contact form submission |
+| TC-RCA-001/002 | 7+4 | RCA walkthrough using the Allure dashboard |
+
+### CI Pipeline (GitHub Actions)
+
+Every push triggers the full suite automatically. The pipeline:
+1. Starts the SUT via Docker Compose
+2. Runs all 23 automated tests
+3. Runs the RCA demo (intentional failures)
+4. Generates and uploads the Allure report as a downloadable artifact
+
+See the [Actions tab](https://github.com/ddreakford/test-automation-demo/actions) for pipeline runs.
+
 ## JDK Setup
 
 The test project compiles to Java 17 bytecode but **requires JDK 21 to run Gradle 8.14**. If your default JDK is 21, everything works out of the box. If not, install JDK 21 and either:
@@ -49,8 +109,6 @@ The test project compiles to Java 17 bytecode but **requires JDK 21 to run Gradl
 - Set `JAVA_HOME` to your JDK 21 installation, or
 - Uncomment the appropriate line in `rbp-test-demo/gradle.properties`, or
 - Pass it on the command line: `./gradlew clean test -Dorg.gradle.java.home=/path/to/jdk-21`
-
-Platform-specific JDK 21 install:
 
 | Platform | Install | Typical Path |
 |---|---|---|
@@ -60,9 +118,12 @@ Platform-specific JDK 21 install:
 
 ## Documentation
 
-See [docs/TestAutomationDemo_SetupGuide.md](docs/TestAutomationDemo_SetupGuide.md) for the full walkthrough — explains the architecture, each source file, and how to use the Allure report for root cause analysis.
+| Document | Description |
+|---|---|
+| [Setup Guide](docs/TestAutomationDemo_SetupGuide.md) | Full walkthrough — architecture, source code, Allure report, RCA demo |
+| [Manual Test Tutorial](docs/ManualTestTutorial.md) | Step-by-step manual test scenarios with reference screenshots |
 
-To generate a `.docx` version for sharing:
+To generate `.docx` versions for sharing:
 ```bash
 ./scripts/convert-to-docx.sh
 ```
@@ -71,13 +132,22 @@ To generate a `.docx` version for sharing:
 
 ```
 test-automation-demo/
-├── CLAUDE.md                  # Project conventions for Claude Code
-├── README.md
 ├── .github/workflows/         # GitHub Actions CI pipeline
-├── docs/                      # Setup guide (.md source + .docx for sharing)
-├── scripts/                   # Utility scripts
+├── docs/
+│   ├── TestAutomationDemo_SetupGuide.md   # Setup & walkthrough guide
+│   ├── ManualTestTutorial.md              # Manual test scenarios
+│   └── screenshots/                       # Reference screenshots
+├── scripts/                   # Utility scripts (docx conversion)
 ├── restful-booker-platform/   # System under test (git submodule)
-└── rbp-test-demo/             # Gradle test project (test automation code)
+└── rbp-test-demo/             # Gradle test project
+    └── src/test/java/com/demo/tests/
+        ├── api/               # API tests (Auth, Booking)
+        ├── ui/                # Admin UI test
+        ├── regression/        # Homepage, Booking Flow, Contact Form
+        ├── rca/               # Intentional failures for RCA demo
+        ├── base/              # UIBase, ApiBase
+        ├── models/            # Booking POJOs
+        └── screenshots/       # Screenshot capture utility
 ```
 
 ## Acknowledgements

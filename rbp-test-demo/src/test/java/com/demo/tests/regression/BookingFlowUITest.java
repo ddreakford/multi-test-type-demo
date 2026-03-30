@@ -23,9 +23,9 @@ import java.util.List;
 public class BookingFlowUITest extends UIBase {
 
     private WebDriverWait wait;
-    // Use room 2 (Double) to avoid conflicts with the API test suite (which books room 1).
-    // Add a unique day offset based on current epoch second to avoid conflicts across runs.
-    private static final int ROOM_ID = 2;
+    // Use room 3 (Suite) for the booking flow. The API test suite books room 1 with
+    // different dates so there's no conflict. Epoch-offset ensures unique dates across runs.
+    private static final int ROOM_ID = 3;
     private static final int DAY_OFFSET = 28 + (int)(System.currentTimeMillis() / 1000 % 30);
     private static final LocalDate CHECKIN = LocalDate.now().plusDays(DAY_OFFSET);
     private static final LocalDate CHECKOUT = CHECKIN.plusDays(2);
