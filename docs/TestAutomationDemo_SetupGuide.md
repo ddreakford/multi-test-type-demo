@@ -12,6 +12,24 @@
 | **Stack** | Java 17 (source) • JDK 21 (build) • Gradle 8.14 • TestNG • RestAssured • Selenium WebDriver • Allure Report |
 | **Tracking** | Use the checkboxes throughout this document to mark steps complete as you go |
 
+## Table of Contents
+
+1. [Section 1 — Prerequisites & Environment](#section-1--prerequisites--environment)
+2. [Section 2 — Clone the Repository](#section-2--clone-the-repository)
+3. [Section 3 — Platform Stack Overview (Reference)](#section-3--platform-stack-overview-reference)
+4. [Section 4 — Start the System Under Test](#section-4--start-the-system-under-test)
+5. [Section 5 — Gradle Project Overview](#section-5--gradle-project-overview)
+6. [Section 6 — Project Structure & Source Files](#section-6--project-structure--source-files)
+7. [Section 7 — Base Classes](#section-7--base-classes)
+8. [Section 8 — Model Classes](#section-8--model-classes)
+9. [Section 9 — Test Classes](#section-9--test-classes)
+10. [Section 10 — Run Tests & Generate the Report](#section-10--run-tests--generate-the-report)
+11. [Section 11 — GitHub Actions CI Pipeline](#section-11--github-actions-ci-pipeline)
+12. [Section 12 — Quick Reference](#section-12--quick-reference)
+13. [Acknowledgements](#acknowledgements)
+
+---
+
 > **How to use this guide:** This is a **clone-and-understand** walkthrough. The repository already contains a fully working test project. You will clone it, start the system under test, run the tests, and then walk through each component to understand how it works. If you want to build the project from scratch as a learning exercise, the code listings in each section serve as a reference — but the focus here is on getting up and running quickly and understanding each piece.
 
 ---

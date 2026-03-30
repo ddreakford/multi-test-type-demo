@@ -12,6 +12,16 @@ This tutorial guides a manual tester through validating the Restful-Booker Platf
 | **URL** | http://localhost |
 | **Credentials** | Username: `admin` / Password: `password` |
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Test Scenario 1: Validate the Homepage UI](#test-scenario-1-validate-the-homepage-ui)
+3. [Test Scenario 2: Book a Room](#test-scenario-2-book-a-room)
+4. [Test Scenario 3: Send Us a Message](#test-scenario-3-send-us-a-message)
+5. [Test Scenario 4: Root Cause Analysis (RCA) Demo](#test-scenario-4-root-cause-analysis-rca-demo--intentional-failures)
+6. [Test Execution Summary](#test-execution-summary)
+7. [Teardown](#teardown)
+
 ---
 
 ## Prerequisites
