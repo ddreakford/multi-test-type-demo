@@ -16,4 +16,21 @@
             <class name="com.demo.tests.ui.BookingUITest"/>
         </classes>
     </test>
+
+    <!-- Regression suite: validates behaviors from the Manual Test Tutorial -->
+    <test name="Regression - Homepage UI (TC-UI-001)">
+        <classes>
+            <class name="com.demo.tests.regression.HomepageUITest"/>
+        </classes>
+    </test>
+    <test name="Regression - Booking Flow (TC-BOOK-001)">
+        <classes>
+            <class name="com.demo.tests.regression.BookingFlowUITest"/>
+        </classes>
+    </test>
+    <test name="Regression - Contact Form (TC-MSG-001)">
+        <classes>
+            <class name="com.demo.tests.regression.ContactFormUITest"/>
+        </classes>
+    </test>
 </suite>
