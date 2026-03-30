@@ -15,7 +15,7 @@ Stack: Java 17, Gradle, TestNG, RestAssured, Selenium WebDriver, Allure Report.
 - **Java 17** minimum. Use TestNG annotations for test lifecycle.
 - **Allure annotations** (`@Epic`, `@Feature`, `@Story`, `@Severity`) on all test classes/methods.
 - **RestAssured** for API tests; **Selenium WebDriver** for UI tests.
-- **Docker Compose**: The SUT runs as 7 microservices via `cd restful-booker-platform && docker compose up -d`.
+- **Docker Compose**: The SUT runs as 7 microservices via `cd restful-booker-platform && DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d`.
 - **Service ports**: Auth=3004, Booking=3000, Room=3001, Branding=3002, Report=3005, Message=3006, UI=80.
 - **Auth model**: Cookie-based tokens (`Set-Cookie: token=<value>`), NOT JSON body. Use `response.getCookie("token")` in RestAssured.
 
@@ -31,6 +31,9 @@ Stack: Java 17, Gradle, TestNG, RestAssured, Selenium WebDriver, Allure Report.
 
 # Start system under test
 cd restful-booker-platform && docker compose start
+
+# First-time start / full reset (DOCKER_DEFAULT_PLATFORM for Apple Silicon)
+cd restful-booker-platform && DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d
 
 # Stop system under test
 cd restful-booker-platform && docker compose stop

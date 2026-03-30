@@ -7,9 +7,9 @@ A multi-service test automation demo targeting the **Restful-Booker Platform** â
 | Layer | Tool |
 |---|---|
 | System Under Test | [Restful-Booker Platform](https://github.com/mwinteringham/restful-booker-platform) (Docker Compose) |
+| Build Tool | Gradle (Groovy DSL) |
 | API Testing | RestAssured + TestNG |
 | UI Testing | Selenium WebDriver + TestNG |
-| Build Tool | Gradle (Groovy DSL) |
 | Reporting | Allure Report |
 | CI (Optional) | GitHub Actions |
 
@@ -23,13 +23,13 @@ A multi-service test automation demo targeting the **Restful-Booker Platform** â
 ## Quick Start
 
 ```bash
-# 1. Clone with submodules
+# 1. Clone with submodules (including the SUT repo, restful-booker-platform)
 git clone --recurse-submodules https://github.com/ddreakford/test-automation-demo.git
 cd test-automation-demo
 
-# 2. Start the system under test
+# 2. Start the system under test (DOCKER_DEFAULT_PLATFORM needed on Apple Silicon)
 cd restful-booker-platform
-docker compose up -d
+DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d
 cd ..
 
 # 3. Wait ~20 seconds for services to initialise, then run the test suite

@@ -177,13 +177,13 @@ After cloning the repository with submodules (Section 2), start all services:
 ```bash
 # From the test-automation-demo project root:
 cd restful-booker-platform
-docker compose up -d
+DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d
 cd ..
 ```
 
 This pulls all seven service images and starts them. The first run may take a few minutes to download images.
 
-> **NOTE:** The images are built for `linux/amd64`. On Apple Silicon Macs, Docker Desktop runs them under Rosetta emulation automatically. You may see platform mismatch warnings — these are safe to ignore.
+> **NOTE:** The `DOCKER_DEFAULT_PLATFORM=linux/amd64` prefix is needed on **Apple Silicon Macs** (M1/M2/M3/M4). The SUT images are built for x86_64 only — without this flag, Docker will emit a platform mismatch warning for each container. The services still run correctly via Rosetta emulation, but the flag suppresses the warnings. On Intel Macs and Linux x86 hosts, the flag is harmless and can be omitted.
 
 - [ ] All containers started via `docker compose up -d`
 - [ ] All containers appear healthy in: `docker compose ps`
@@ -247,8 +247,10 @@ docker compose stop
 docker compose start
 
 # Full reset (removes containers and recreates from images)
-docker compose down && docker compose up -d
+docker compose down && DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d
 ```
+
+> **NOTE:** The `DOCKER_DEFAULT_PLATFORM` prefix is only needed for `up` (image pull). `stop`, `start`, `down` operate on existing containers and don't need it.
 
 ---
 
@@ -884,8 +886,9 @@ cd rbp-test-demo && ./gradlew clean test
 # Stop system under test
 cd restful-booker-platform && docker compose stop && cd ..
 
-# Full reset of SUT
-cd restful-booker-platform && docker compose down && docker compose up -d && cd ..
+# Full reset of SUT (Apple Silicon: include DOCKER_DEFAULT_PLATFORM)
+cd restful-booker-platform && docker compose down && DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d && cd ..
+
 ```
 
 ### 12.2 Default Credentials
