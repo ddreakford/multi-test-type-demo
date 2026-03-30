@@ -41,6 +41,17 @@ test {
     }
 }
 
+// Separate task for capturing manual test screenshots (not part of the main suite)
+tasks.register('captureScreenshots', Test) {
+    useTestNG()
+    include '**/screenshots/**'
+    jvmArgs "-javaagent:${configurations.agent.asPath}"
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = true
+    }
+}
+
 allure {
     version = allureVersion
     useTestNG {
