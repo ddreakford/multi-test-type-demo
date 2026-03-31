@@ -377,18 +377,28 @@ rbp-test-demo/
     └── test/
         ├── java/com/demo/tests/
         │   ├── api/
-        │   │   ├── AuthApiTest.java      # Auth service API tests
-        │   │   └── BookingApiTest.java    # Booking CRUD API tests
+        │   │   ├── AuthApiTest.java           # Auth service API tests
+        │   │   └── BookingApiTest.java        # Booking CRUD API tests
         │   ├── ui/
-        │   │   └── BookingUITest.java     # Browser-based admin login test
+        │   │   └── BookingUITest.java         # Browser-based admin login test
         │   ├── base/
-        │   │   ├── ApiBase.java           # RestAssured config + service URLs
-        │   │   └── UIBase.java            # Chrome setup + screenshot capture
-        │   └── models/
-        │       ├── Booking.java           # Booking request POJO
-        │       └── BookingDates.java      # Date range POJO
+        │   │   ├── ApiBase.java               # RestAssured config + service URLs
+        │   │   └── UIBase.java                # Chrome setup + screenshot capture
+        │   ├── models/
+        │   │   ├── Booking.java               # Booking request POJO
+        │   │   └── BookingDates.java          # Date range POJO
+        │   ├── rca/
+        │   │   ├── RcaBookingApiTest.java     # Intentional API failure for RCA demo
+        │   │   └── RcaHomepageUITest.java     # Intentional UI failure for RCA demo
+        │   ├── regression/
+        │   │   ├── BookingFlowUITest.java     # End-to-end booking UI test
+        │   │   ├── ContactFormUITest.java     # Contact form UI test
+        │   │   └── HomepageUITest.java        # Homepage verification test
+        │   └── screenshots/
+        │       └── ManualTestScreenshots.java # Screenshot capture utility
         └── resources/
-            └── testng.xml                 # Test suite definition
+            ├── testng.xml                     # Main test suite definition
+            └── testng-rca.xml                 # RCA demo suite definition
 ```
 
 ### 6.2 testng.xml
