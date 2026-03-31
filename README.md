@@ -120,7 +120,7 @@ The test project compiles to Java 17 bytecode but **requires JDK 21 to run Gradl
 
 | Document | Description |
 |---|---|
-| [Setup Guide](docs/TestAutomationDemo_SetupGuide.md) | Full walkthrough — architecture, source code, Allure report, RCA demo |
+| [Test Automation Setup Guide](docs/TestAutomationDemo_SetupGuide.md) | Full walkthrough — architecture, source code, Allure report, RCA demo |
 | [Manual Test Tutorial](docs/ManualTestTutorial.md) | Step-by-step manual test scenarios with reference screenshots |
 
 To generate `.docx` versions for sharing:
