@@ -2,12 +2,12 @@
 
 ## Setup & Execution Guide
 
-*RestAssured • Selenium • TestNG • Gradle • Allure*
+*Docker • Gradle • TestNG • RestAssured • Selenium • Allure*
 
 |  |  |
 |----|----|
-| **Purpose** | Step-by-step guide to set up, run, and understand a test automation demo covering API and UI testing across multiple backend services, with a visual results dashboard and root cause analysis walkthrough. |
-| **Audience** | Individual setup, team onboarding, or job interview / assessment demonstration |
+| **Purpose** | Step-by-step guide to set up, understand and demonstrate testing a multi-service application. Manual and automated testing techniques are used to validate APIs as well as end-to-end, UI-driven scenarios. Results reporting and root cause analysis are facilitated using dashboards as well as reports. |
+| **Use Cases** | Individual exploration, team onboarding, job interview / assessment demonstration |
 | **Test Target** | Restful-Booker Platform (Docker Compose) — multi-service hotel booking application |
 | **Stack** | Java 17 (source) • JDK 21 (build) • Gradle 8.14 • TestNG • RestAssured • Selenium WebDriver • Allure Report |
 | **Tracking** | Use the checkboxes throughout this document to mark steps complete as you go |
@@ -30,7 +30,7 @@
 
 ---
 
-> **How to use this guide:** This is a **clone-and-understand** walkthrough. The repository already contains a fully working test project. You will clone it, start the system under test, run the tests, and then walk through each component to understand how it works. If you want to build the project from scratch as a learning exercise, the code listings in each section serve as a reference — but the focus here is on getting up and running quickly and understanding each piece.
+> **How to use this guide:** This is a **clone-and-understand** walkthrough. The repository already contains a fully working test project. You will clone it, start the system under test, run the tests, and then walk through each component to understand how it works. If you want to build the project from scratch as a learning exercise, the code listings in each section serve as a reference — but the emphasis here is on getting up and running quickly and understanding each piece.
 
 ---
 
@@ -133,22 +133,22 @@ git submodule status
 
 - [ ] `restful-booker-platform/docker-compose.yml` exists
 
-> **NOTE:** The `restful-booker-platform/` directory is a reference to the upstream repository at https://github.com/mwinteringham/restful-booker-platform. All credit for the SUT's design and implementation belongs to Mark Winteringham and its contributors. See [Acknowledgements](#acknowledgements).
+> **NOTE:** The `restful-booker-platform/` directory is a reference to the upstream repository at https://github.com/mwinteringham/restful-booker-platform by Mark Winteringham and contributors to that repo. See [Acknowledgements](#acknowledgements).
 
 ---
 
 ## Section 3 — Platform Stack Overview (Reference)
 
-This section summarises every tool in the demo and why each was selected. Use this as a reference when explaining your choices during an interview.
+This section summarizes the tools used and why each was selected.
 
 | **Layer** | **Tool** | **Purpose** |
 |----|----|----|
-| System Under Test | Restful-Booker Platform (Docker Compose) | Multi-service hotel booking app with REST APIs + web UI. Free and open source. |
+| System Under Test | Restful-Booker Platform (Docker Compose) | Multi-service hotel booking app with REST APIs + web UI. The multi-service architecture and realistic UI facilitate rich exploration. The Docker deployment option really simplifies things and reduces or eliminates portability issues. Free and open source availability to boot. |
 | API Testing | RestAssured + TestNG | Industry-standard Java API testing. Full request/response validation with fluent syntax. |
 | UI Testing | Selenium WebDriver + TestNG | Industry-standard browser automation. Integrates cleanly with RestAssured in one project. |
 | Build Tool | Gradle (Groovy DSL) | Fast incremental builds. Manages all dependencies and test execution. |
-| Reporting | Allure Report | Visual dashboard with pass/fail trends, RCA drill-down, request/response attachments, and screenshots. |
-| CI (Optional) | GitHub Actions | Runs the full suite on every push. Demonstrates end-to-end pipeline awareness. |
+| Reporting | Allure Report | Visual dashboard with pass/fail trends, RCA drill-down, request/response attachments and screenshots. Java language support includes decorators that are compatible with Java testing frameworks (e.g. TestNG). |
+| CI (Optional) | GitHub Actions | Runs the full suite on every push. Demonstrates portability and pipeline "plugability" of the automated tests. |
 
 ### 3.1 System Under Test — Restful-Booker Platform
 
@@ -164,7 +164,7 @@ Restful-Booker Platform is a hotel booking application built specifically for te
 | **message** | 3006 | Contact / messaging service |
 | **assets** | 80 | Next.js web UI with reverse proxy to backend services |
 
-The web UI is served on port 80. For test automation, we call the service APIs directly on their individual ports.
+The web UI is served on port 80. For API testing, we call the service APIs directly on their individual ports. For end-to-end tests, Selenium Driver uses the UI port.
 
 Swagger documentation for each service is available at:
 
