@@ -28,11 +28,11 @@ This tutorial guides a manual tester through validating the Restful-Booker Platf
 
 Before executing these tests, complete the following setup:
 
-### 1. Clone the Test Automation Demo Repository
+### 1. Clone the Multi Test Type Demo Repository
 
 ```bash
-git clone --recurse-submodules https://github.com/ddreakford/test-automation-demo.git
-cd test-automation-demo
+git clone --recurse-submodules https://github.com/ddreakford/multi-test-type-demo.git
+cd multi-test-type-demo
 ```
 
 > If you already cloned without `--recurse-submodules`, run:

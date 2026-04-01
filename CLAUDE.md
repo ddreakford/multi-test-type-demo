@@ -1,4 +1,4 @@
-# Test Automation Demo — Project Conventions
+# Multi Test Type Demo — Project Conventions
 
 ## Overview
 Multi-service test automation demo targeting the Restful-Booker Platform (Docker).

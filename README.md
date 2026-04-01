@@ -1,4 +1,4 @@
-# Test Automation Demo
+# Multi Test Type Demo
 
 A multi-service test automation demo targeting the **Restful-Booker Platform** — a Docker-based hotel booking application with REST APIs and a web UI.
 
@@ -24,8 +24,8 @@ A multi-service test automation demo targeting the **Restful-Booker Platform** �
 
 ```bash
 # 1. Clone with submodules (including the SUT repo, restful-booker-platform)
-git clone --recurse-submodules https://github.com/ddreakford/test-automation-demo.git
-cd test-automation-demo
+git clone --recurse-submodules https://github.com/ddreakford/multi-test-type-demo.git
+cd multi-test-type-demo
 
 # 2. Start the system under test (DOCKER_DEFAULT_PLATFORM needed on Apple Silicon)
 cd restful-booker-platform
@@ -100,7 +100,7 @@ Every push triggers the full suite automatically. The pipeline:
 3. Runs the RCA demo (intentional failures)
 4. Generates and uploads the Allure report as a downloadable artifact
 
-See the [Actions tab](https://github.com/ddreakford/test-automation-demo/actions) for pipeline runs.
+See the [Actions tab](https://github.com/ddreakford/multi-test-type-demo/actions) for pipeline runs.
 
 ## JDK Setup
 
@@ -120,7 +120,7 @@ The test project compiles to Java 17 bytecode but **requires JDK 21 to run Gradl
 
 | Document | Description |
 |---|---|
-| [Test Automation Setup Guide](docs/TestAutomationDemo_SetupGuide.md) | Full walkthrough — architecture, source code, Allure report, RCA demo |
+| [Multi Test Type Demo Setup Guide](docs/TestAutomationDemo_SetupGuide.md) | Full walkthrough — architecture, source code, Allure report, RCA demo |
 | [Manual Test Tutorial](docs/ManualTestTutorial.md) | Step-by-step manual test scenarios with reference screenshots |
 
 To generate `.docx` versions for sharing:
@@ -131,7 +131,7 @@ To generate `.docx` versions for sharing:
 ## Project Structure
 
 ```
-test-automation-demo/
+multi-test-type-demo/
 ├── .github/workflows/         # GitHub Actions CI pipeline
 ├── docs/
 │   ├── TestAutomationDemo_SetupGuide.md   # Setup & walkthrough guide

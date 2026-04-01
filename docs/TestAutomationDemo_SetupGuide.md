@@ -1,4 +1,4 @@
-# Test Automation Demo
+# Multi Test Type Demo
 
 ## Setup & Execution Guide
 
@@ -106,8 +106,8 @@ This repository contains both the test automation project and the system under t
 ### 2.1 Clone with Submodules (recommended)
 
 ```bash
-git clone --recurse-submodules https://github.com/ddreakford/test-automation-demo.git
-cd test-automation-demo
+git clone --recurse-submodules https://github.com/ddreakford/multi-test-type-demo.git
+cd multi-test-type-demo
 ```
 
 - [ ] Repository cloned with submodules
@@ -193,7 +193,7 @@ The auth service uses **cookie-based tokens**, not JSON response bodies:
 After cloning the repository with submodules (Section 2), start all services:
 
 ```bash
-# From the test-automation-demo project root:
+# From the multi-test-type-demo project root:
 cd restful-booker-platform
 DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up -d
 cd ..
@@ -281,7 +281,7 @@ The test project is at `rbp-test-demo/`. It is already fully configured in the r
 ### 5.1 Verify the Build
 
 ```bash
-# From the test-automation-demo project root:
+# From the multi-test-type-demo project root:
 cd rbp-test-demo
 ./gradlew --version
 # Expected: Gradle 8.14, JDK 21
