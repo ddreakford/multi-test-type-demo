@@ -2,6 +2,19 @@
 
 A multi-service test automation demo targeting the **Restful-Booker Platform** — a Docker-based hotel booking application with REST APIs and a web UI.
 
+## Why This Project
+
+Most test automation examples showcase capabilities in isolation — an API test here, a UI test there, reporting shown separately. This project brings them together in a single, working codebase so you can see how API tests, UI tests, manual test scenarios, professional reporting and CI/CD fit together in practice.
+
+Specifically, this project is designed to answer questions like:
+
+- **"What does a multi-type test suite actually look like?"** — API (RestAssured) and UI (Selenium) tests organized in a single Gradle project, targeting a real multi-service application
+- **"What happens when tests fail?"** — An RCA demo with intentional failures walks through root cause analysis using Allure dashboards
+- **"How do manual and automated tests relate?"** — Manual test scenarios map 1:1 to automated regression tests, with reference screenshots captured by Selenium
+- **"How does this plug into CI?"** — A GitHub Actions pipeline runs the full suite on every push and publishes the Allure report
+
+Part of the [Sales Engineering Portfolio](https://github.com/ddreakford/sales-engineering-portfolio) · [Case Study](https://github.com/ddreakford/sales-engineering-portfolio/blob/main/case-studies/multi-test-type-demo-impact.md)
+
 ## Stack
 
 | Layer | Tool |
