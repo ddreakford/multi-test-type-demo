@@ -4,12 +4,13 @@
     - `cd multi-test-type-demo`
 2) **Start AUT** 
     - `cd restful-booker-platform	# included as a submodule` 
-    - `DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up –d docker compose up`
+    - `DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up –d`
+    - `cd ..`
 3) **Run the automated suite** 
     - `cd rbp-test-demo`
     - `./gradlew clean test`
 4) **Run the RCA suite** 
-    - `cd rbp-test-demo`
+    - `cd rbp-test-demo     # if not already in this directory`
     - `gradlew rcaDemo      # intentional failures`
 5) **View Allure Report** 
     - `./gradlew allureServe`
