@@ -25,7 +25,17 @@ allure-report/
 # Docker
 docker-compose.override.yml
 
+# Prompts used to create content that has been refined
+docs/prompt-manual_test_tutorial.md
+docs/prompt-presentation.md
+
 # Temp/lock files
 ~$*
 *.tmp
 *.lock
+
+# Host and installation specific config
+.mcp.json
+tabnine-ctx-loader.yaml
+.tabnine/ctx/
+.claude/
