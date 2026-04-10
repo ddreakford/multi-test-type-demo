@@ -1,5 +1,13 @@
 # Context Engine Onboarding Guide — multi-test-type-demo
 
+> ⚠️ **Prototype — superseded by the hub guide.**
+>
+> This document was the **first** Context Engine onboarding guide written, produced during the initial onboarding of `multi-test-type-demo`. It served as the prototype for the now-authoritative, project-agnostic guide that lives in the [tabnine-exploration](https://github.com/ddreakford/tabnine-exploration) hub:
+>
+> **➡️ [Authoritative Context Engine Onboarding Guide](https://github.com/ddreakford/tabnine-exploration/blob/main/docs/context-engine-onboarding-guide.md)**
+>
+> Use the hub guide for any new onboarding effort. This file is preserved for historical reference and as the canonical source for the multi-test-type-demo–specific worked example (submodule inclusion before/after measurements). The investigations performed against this project's knowledge graph continue to be tracked in [context-engine-queries.md](context-engine-queries.md) alongside this file.
+
 This guide documents the process for onboarding repositories to the Tabnine Context Engine using the `/onboard` skill in Claude Code. It is based on the onboarding and analysis of `multi-test-type-demo` and includes lessons learned, pitfalls to avoid and before/after measurement comparisons.
 
 For the general onboarding methodology, see the [upstream onboarding guide](https://github.com/codota/ctx-customer-pack-distributable/blob/main/docs/onboarding-guide.md). This document supplements that guide with project-specific commands, submodule handling, and team guidance.
